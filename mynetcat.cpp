@@ -80,6 +80,7 @@ void executeCommand(const string& command, const string& inputSource, const stri
     execArgs.push_back(nullptr); // Null terminate for execv
 
         // Fork and execute
+    
     pid_t pid = fork();
     if (pid == -1) {
         perror("fork");
@@ -89,6 +90,7 @@ void executeCommand(const string& command, const string& inputSource, const stri
     if (pid == 0) { // Child process
         // Redirect input/output if specified
         int inputFd = STDIN_FILENO, outputFd = STDOUT_FILENO;
+        
         if (!inputSource.empty()) {
             if (inputSource.substr(0, 4) == "TCPS") {
                 int port = stoi(inputSource.substr(4));
@@ -99,12 +101,11 @@ void executeCommand(const string& command, const string& inputSource, const stri
                 }
                 if(inputSource == outputDestination){
                     cout<<"we got to inputSource == outputDestination " <<endl;
-                    //redirectOutput(inputFD);
-                    redirectIO(inputFd, true, outputFd, true);
+                    redirectIO(inputFd, true, inputFd, true);
                 }
             }
 
-        else if (inputSource.substr(0, 5) == "UDSSS") 
+            else if (inputSource.substr(0, 5) == "UDSSS") 
             {
                 int findPath = inputSource.find("/");
                 const string socketPath = inputSource.substr(findPath);
@@ -120,7 +121,7 @@ void executeCommand(const string& command, const string& inputSource, const stri
                 else if(inputSource == outputDestination) 
                 {
                     cout<<"we got to inputSource == outputDestination " <<endl;
-                    redirectIO(inputFd, true, outputFd, true);
+                    redirectIO(inputFd, true, inputFd, true);
                 }
             }
         }
@@ -135,8 +136,8 @@ void executeCommand(const string& command, const string& inputSource, const stri
                     cerr << "Failed to connect to TCP server" << endl;
                     exit(EXIT_FAILURE);
                 }
-                redirectIO(inputFd, false, outputFd, true);
             }
+        
 
             /* Unix-Domain-Socket-Stream-Client: redirection output to the client (-o Flag) */
             else if (outputDestination.substr(0, 5) == "UDSCS") 
@@ -148,10 +149,9 @@ void executeCommand(const string& command, const string& inputSource, const stri
                     cerr << "Failed to connect to TCP server" << endl;
                     exit(EXIT_FAILURE);
                 }
-                
             }
         }
-
+    
         // Redirect input and output if it answer the conditions in the function
         redirectIO(inputFd,true, outputFd, true);
         // Set the output buffer to line-buffered
