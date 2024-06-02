@@ -9,7 +9,7 @@
 
 using namespace std;
 
-int startUDSClientStream(const std::string &socketPath)
+int startUDSClientStream(const std::string &socketPath) 
 {
     
     /* Create the client socket stream */

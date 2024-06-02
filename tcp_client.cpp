@@ -14,7 +14,7 @@
 using namespace std;
 
 int startTCPClient(const string &hostname, int port) {
-    int socketClient = socket(AF_INET, SOCK_STREAM, 0);
+    int socketClient = socket(AF_INET, SOCK_STREAM, 0); 
     if (socketClient < 0) {
         perror("Socket creation failed");
         return -1;

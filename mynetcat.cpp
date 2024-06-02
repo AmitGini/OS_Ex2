@@ -88,7 +88,8 @@ void executeCommand(const string& command, const string& inputSource, const stri
     }
 
     if (pid == 0) { // Child process
-        // Redirect input/output if specified
+
+        // inputFd and outputFd are the file descriptors for input and output
         int inputFd = STDIN_FILENO, outputFd = STDOUT_FILENO;
         
         if (!inputSource.empty()) {
@@ -100,7 +101,6 @@ void executeCommand(const string& command, const string& inputSource, const stri
                     exit(EXIT_FAILURE);
                 }
                 if(inputSource == outputDestination){
-                    cout<<"we got to inputSource == outputDestination " <<endl;
                     redirectIO(inputFd, true, inputFd, true);
                 }
             }
@@ -120,11 +120,30 @@ void executeCommand(const string& command, const string& inputSource, const stri
                 /* Output redirection to the client (-b Flag) */
                 else if(inputSource == outputDestination) 
                 {
-                    cout<<"we got to inputSource == outputDestination " <<endl;
+                    redirectIO(inputFd, true, inputFd, true);
+                }
+            }
+
+            else if (inputSource.substr(0, 5) == "UDSSD") 
+            {
+                int findPath = inputSource.find("/");
+                const string socketPath = inputSource.substr(findPath);
+                inputFd = startUDSServerDatagram(socketPath);
+                
+                if(inputFd == -1)
+                {
+                    cerr << "Failed to start Unix Domain Socket server" << endl;
+                    exit(EXIT_FAILURE);
+                }
+                
+                /* Output redirection to the client (-b Flag) */
+                else if(inputSource == outputDestination) 
+                {
                     redirectIO(inputFd, true, inputFd, true);
                 }
             }
         }
+
 
         if (!outputDestination.empty()){
             if (outputDestination.substr(0, 4) == "TCPC") {

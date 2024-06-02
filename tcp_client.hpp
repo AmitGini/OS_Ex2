@@ -5,6 +5,6 @@
 #include <string>
 using std::string;
 
-int startTCPClient(const string &hostname, int port);
+int startTCPClient(const string &hostname, int port); 
 
 #endif

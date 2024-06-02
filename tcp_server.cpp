@@ -27,7 +27,7 @@ int startTCPServer(int port) {
     if (setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) < 0) {
         perror("setsockopt(SO_REUSEADDR) failed");
         close(listeningSocket);
-        exit(EXIT_FAILURE);
+        return -1;
     }
     
     cout << "Starting TCP server on port " << port << endl;
@@ -45,7 +45,7 @@ int startTCPServer(int port) {
         return -1;
     }
 
-    // Listen for incoming connections
+    // Listen for incoming connections 
     if (listen(listeningSocket, 5) < 0) {
         perror("listen() failed");
         close(listeningSocket);
