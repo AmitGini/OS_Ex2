@@ -100,7 +100,6 @@ void executeCommand(const string& command, const string& inputSource, const stri
                     exit(EXIT_FAILURE);
                 }
                 if(inputSource == outputDestination){
-                    cout<<"we got to inputSource == outputDestination " <<endl;
                     redirectIO(inputFd, true, inputFd, true);
                 }
             }
@@ -120,7 +119,6 @@ void executeCommand(const string& command, const string& inputSource, const stri
                 /* Output redirection to the client (-b Flag) */
                 else if(inputSource == outputDestination) 
                 {
-                    cout<<"we got to inputSource == outputDestination " <<endl;
                     redirectIO(inputFd, true, inputFd, true);
                 }
             }

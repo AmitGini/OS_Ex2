@@ -8,7 +8,7 @@ using namespace std;
 // create unix domain socket server using stream
 int startUDSServerStream(const std::string &socketPath);
 
-// create unix domain socket server using datagram
+// create unix domain socket server using datagram 
 //int startUDSServerDatagram(const std::string &socketPath);
 
 #endif

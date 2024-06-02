@@ -4,6 +4,6 @@
 #include <string>
 using namespace std;
 
-int startUDSClientStream(const string &socketPath);
+int startUDSClientStream(const string &socketPath); 
 
 #endif

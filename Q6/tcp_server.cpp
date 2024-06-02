@@ -45,7 +45,7 @@ int startTCPServer(int port) {
         return -1;
     }
 
-    // Listen for incoming connections
+    // Listen for incoming connections 
     if (listen(listeningSocket, 5) < 0) {
         perror("listen() failed");
         close(listeningSocket);

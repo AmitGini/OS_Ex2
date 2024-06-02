@@ -13,7 +13,7 @@ using namespace std;
 int startUDSServerStream(const string &socketPath)
 {
     
-    struct sockaddr_un server_addr;
+    struct sockaddr_un server_addr; 
     int listeningSocket;
     int data_socket;
 
