@@ -8,7 +8,4 @@ using std::string;
 // create tcp server
 int startTCPServer(int port);
 
-
-// redirect output
-void redirectOutput(int socket);
 #endif

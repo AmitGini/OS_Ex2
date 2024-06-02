@@ -18,7 +18,7 @@
 using namespace std;
 
 // Forward declaration of utility functions
-void redirectIO(int inputFd, int outputFd);
+void redirectIO(int inputFd, bool redirectInput, int outputFd, bool redirectOutput);
 
 // Execute the command with input and output redirection if specified
 void executeCommand(const string& command, const string& inputSource, const string& outputDestination);
@@ -88,18 +88,19 @@ void executeCommand(const string& command, const string& inputSource, const stri
 
     if (pid == 0) { // Child process
         // Redirect input/output if specified
-        int inputFD = STDIN_FILENO, outputFD = STDOUT_FILENO;
+        int inputFd = STDIN_FILENO, outputFd = STDOUT_FILENO;
         if (!inputSource.empty()) {
             if (inputSource.substr(0, 4) == "TCPS") {
                 int port = stoi(inputSource.substr(4));
-                inputFD = startTCPServer(port);
-                if (inputFD == -1) {
+                inputFd = startTCPServer(port);
+                if (inputFd == -1) {
                     cerr << "Failed to start TCP server" << endl;
                     exit(EXIT_FAILURE);
                 }
                 if(inputSource == outputDestination){
                     cout<<"we got to inputSource == outputDestination " <<endl;
-                    redirectOutput(inputFD);
+                    //redirectOutput(inputFD);
+                    redirectIO(inputFd, true, outputFd, true);
                 }
             }
 
@@ -107,9 +108,9 @@ void executeCommand(const string& command, const string& inputSource, const stri
             {
                 int findPath = inputSource.find("/");
                 const string socketPath = inputSource.substr(findPath);
-                inputFD = startUDSServerStream(socketPath);
+                inputFd = startUDSServerStream(socketPath);
                 
-                if(inputFD == -1)
+                if(inputFd == -1)
                 {
                     cerr << "Failed to start Unix Domain Socket server" << endl;
                     exit(EXIT_FAILURE);
@@ -119,7 +120,7 @@ void executeCommand(const string& command, const string& inputSource, const stri
                 else if(inputSource == outputDestination) 
                 {
                     cout<<"we got to inputSource == outputDestination " <<endl;
-                    redirectOutput(inputFD);
+                    redirectIO(inputFd, true, outputFd, true);
                 }
             }
         }
@@ -129,11 +130,12 @@ void executeCommand(const string& command, const string& inputSource, const stri
                 size_t commaPos = outputDestination.find(',');
                 string hostname = outputDestination.substr(4, commaPos - 4);
                 int port = stoi(outputDestination.substr(commaPos + 1));
-                outputFD = startTCPClient(hostname, port);
-                if (outputFD == -1) {
+                outputFd = startTCPClient(hostname, port);
+                if (outputFd == -1) {
                     cerr << "Failed to connect to TCP server" << endl;
                     exit(EXIT_FAILURE);
                 }
+                redirectIO(inputFd, false, outputFd, true);
             }
 
             /* Unix-Domain-Socket-Stream-Client: redirection output to the client (-o Flag) */
@@ -141,8 +143,8 @@ void executeCommand(const string& command, const string& inputSource, const stri
             {
                 size_t find_path = outputDestination.find("/");
                 const string socketPath = outputDestination.substr(find_path);
-                outputFD = startUDSClientStream(socketPath);
-                if (outputFD == -1) {
+                outputFd = startUDSClientStream(socketPath);
+                if (outputFd == -1) {
                     cerr << "Failed to connect to TCP server" << endl;
                     exit(EXIT_FAILURE);
                 }
@@ -150,8 +152,13 @@ void executeCommand(const string& command, const string& inputSource, const stri
             }
         }
 
-        redirectIO(inputFD, outputFD);
+        // Redirect input and output if it answer the conditions in the function
+        redirectIO(inputFd,true, outputFd, true);
+        // Set the output buffer to line-buffered
+        setvbuf(stdout, nullptr, _IOLBF, BUFSIZ);
+        // Execute the command with the arguments given
         execv(execArgs[0], execArgs.data());
+        // If execv returns, it must have failed
         perror("execv failed");
         exit(EXIT_FAILURE);
     } else { // Parent process
@@ -171,15 +178,15 @@ void executeCommand(const string& command, const string& inputSource, const stri
 }
 
 // Utility function to redirect standard input and output
-void redirectIO(int inputFd, int outputFd) {
-    if (inputFd != STDIN_FILENO) {
+void redirectIO(int inputFd, bool redirectInput, int outputFd, bool redirectOutput) {
+    if (redirectInput && inputFd != STDIN_FILENO) {
         if (dup2(inputFd, STDIN_FILENO) < 0) {
             perror("Failed to redirect standard input");
             exit(EXIT_FAILURE);
         }
     }
 
-    if (outputFd != STDOUT_FILENO) {
+    if (redirectOutput && outputFd != STDOUT_FILENO) {
         if (dup2(outputFd, STDOUT_FILENO) < 0) {
             perror("Failed to redirect standard output");
             exit(EXIT_FAILURE);
