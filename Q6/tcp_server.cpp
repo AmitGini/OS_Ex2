@@ -59,7 +59,7 @@ int startTCPServer(int port) {
     memset(&client_address, 0, sizeof(client_address));
 
     // Accept a connection from the client
-    cout<<"Waiting for TCP connection...\n"<<endl;
+    cout<<"Waiting for TCP connection..."<<endl;
     int clientSocket = accept(listeningSocket, (struct sockaddr *)&client_address, &client_address_len);
     if (clientSocket < 0) {
         perror("Accept failed");
@@ -73,21 +73,4 @@ int startTCPServer(int port) {
 
     return clientSocket;
 }
-
-
-
-void redirectOutput(int socket) {
-    cout << "Redirecting output to socket..." << endl;
-    if (dup2(socket, STDOUT_FILENO) < 0) { 
-        perror("dup2 failed for output redirection");
-        exit(EXIT_FAILURE);
-    }
-     if (dup2(socket, STDERR_FILENO) < 0) {
-        perror("dup2 failed for error output redirection");
-        exit(EXIT_FAILURE);
-    }
-    cout << "Output redirected to socket" << endl;
-}
-
-//todo: handle sudden client disconnections
 

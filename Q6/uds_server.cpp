@@ -34,11 +34,13 @@ int startUDSServerStream(const string &socketPath)
 
     /* Set the server_name struct values (Init its fields) */
     server_addr.sun_family = AF_UNIX;
+    
+    /* In case the program exited unexpectedly, the socket file may still exist. */
+    unlink(socketPath.c_str()); // remove the socket file if it exists (after initial it in strcpy)
+    
+    // Copy the socket path to the server_addr struct
     strncpy(server_addr.sun_path, socketPath.c_str(), sizeof(server_addr.sun_path) - 1);
 
-    /* In case the program exited unexpectedly, the socket file may still exist. */
-    unlink(server_addr.sun_path); // remove the socket file if it exists (after initial it in strcpy)
-    
     /* 
         Bind the server socket to the server_name struct 
         bins system call is telling the OS that if sender process sends the data setined to socket file descriptor,
@@ -81,5 +83,5 @@ int startUDSServerStream(const string &socketPath)
     cout<<"Connection accepted from client"<<endl;
 
     close(listeningSocket);
-    return data_socket;
+    return clientSocket;
 }

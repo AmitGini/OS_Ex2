@@ -26,15 +26,15 @@ int startUDSClientStream(const std::string &socketPath)
     cout<<"Client Socket Created"<<endl;
     
     // Define the server_addr struct
-    struct sockaddr_un serverAddress;
+    struct sockaddr_un socket_addr;
 
     /* Initialize(memory save) the server_addr struct with the socket path */
-    memset(&serverAddress, 0, sizeof(serverAddress));
+    memset(&socket_addr, 0, sizeof(socket_addr));
 
 
     /* Set the server_addr struct values (Init its fields) */
-    serverAddress.sun_family = AF_UNIX;
-    strncpy(serverAddress.sun_path, socket_path, sizeof(serverAddress.sun_path) - 1);
+    socket_addr.sun_family = AF_UNIX;
+    strncpy(socket_addr.sun_path, socket_path, sizeof(socket_addr.sun_path) - 1);
 
     /* 
         Connect the client socket to the server_addr struct 
@@ -42,7 +42,7 @@ int startUDSClientStream(const std::string &socketPath)
         then the OS should deliver the data to the server_addr struct (the server process).
     */
    
-    if(connect(socketClient, (const struct sockaddr *) &serverAddress, sizeof(serverAddress)) < 0)
+    if(connect(socketClient, (const struct sockaddr *) &socket_addr, sizeof(socket_addr)) < 0)
     {
         perror("Failed to connect");
         close(socketClient);
