@@ -6,4 +6,5 @@ using namespace std;
 
 int startUDSClientStream(const string &socketPath); 
 
+int startUDSClientDatagram(const string &socketPath);
 #endif
