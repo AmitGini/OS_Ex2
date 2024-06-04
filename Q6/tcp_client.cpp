@@ -23,7 +23,6 @@ int startTCPClient(const string &hostname, int port) {
     // Create server address struct
     struct sockaddr_in serverAddress;  // Struct sockaddr_in is defined in the <netinet/in.h> header file.
     struct hostent *server;
-    memset(&serverAddress, 0, sizeof(serverAddress));
 
      // Resolve hostname to IP address
     server = gethostbyname(hostname.c_str());
@@ -34,7 +33,7 @@ int startTCPClient(const string &hostname, int port) {
     }
 
     serverAddress.sin_family = AF_INET;
-    // bcopy copies the IP address from hostent to the sockaddr_in structure.
+    // bcopy copies the IP/hostname address from hostent to the sockaddr_in structure.
     bcopy((char *)server->h_addr, (char *)&serverAddress.sin_addr.s_addr, server->h_length);
     serverAddress.sin_port = htons(port); // htons() function ensures that the port number is properly formatted for network communication, regardless of the byte order of the host machine.
 

@@ -9,6 +9,6 @@ using namespace std;
 int startUDSServerStream(const std::string &socketPath);
 
 // create unix domain socket server using datagram 
-//int startUDSServerDatagram(const std::string &socketPath);
+int startUDSServerDatagram(const std::string &socketPath);
 
 #endif
