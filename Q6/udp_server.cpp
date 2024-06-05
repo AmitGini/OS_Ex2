@@ -8,8 +8,8 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <sys/un.h>
-#include "udp_server.hpp"
 #define BUFFER_SIZE 1024
+#include "udp_server.hpp"
 
 using namespace std;
 
@@ -17,15 +17,36 @@ using namespace std;
 // Function to start a UDP server
 int startUDPServer(int port)
 {
-    int serverSocket = socket(AF_INET, SOCK_DGRAM, 0);
+
+    // get address info
+    struct addrinfo addressInfo;
+
+    // set up the hints structure
+    memset(&addressInfo, 0, sizeof addressInfo);
+    addressInfo.ai_socktype = SOCK_DGRAM;
+    addressInfo.ai_family = AF_UNSPEC;
+    addressInfo.ai_flags = AI_PASSIVE;
+
+    // get address info for the server
+    struct addrinfo *resolvedAddress;
+    string port_str = to_string(port);
+    int status;
+    if ((status = getaddrinfo(NULL, port_str.c_str(), &addressInfo, &resolvedAddress)) != 0) 
+    {
+        cerr<<stderr<<"getaddrinfo: "<<gai_strerror(status)<<endl;;
+        return -1;
+    }
+
+    int serverSocket = socket(resolvedAddress->ai_family, resolvedAddress->ai_socktype, resolvedAddress->ai_protocol);
     if (serverSocket < 0)
     {
         perror("Error creating socket");
         return -1;
-    }else cout<<"Server UDP Socket Created On Port: "<< port << endl;
-    
+    }
+
     int opt = 1; 
-    // allow socket to be reused
+    
+    // allow socket to be reused with the address and port
     if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) < 0) 
     {
         perror("setsockopt(SO_REUSEADDR) failed");
@@ -33,35 +54,33 @@ int startUDPServer(int port)
         return -1;
     }
 
-    struct sockaddr_in server_addr; // Struct sockaddr_in is defined in the <netinet/in.h> header file.
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY; // The server will listen on all available network interfaces.
-    server_addr.sin_port = htons(port); // htons() function ensures that the port number is properly formatted for network communication, regardless of the byte order of the host machine.
-   
+    cout<<"Waiting for bind..."<<endl;
+
     // Bind the socket to the specified address and port
-    if (bind(serverSocket, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
+    if (bind(serverSocket, resolvedAddress->ai_addr, resolvedAddress->ai_addrlen) < 0)
     {
-        perror("Bined Failed");
+        perror("Bind Failed");
         close(serverSocket);
         return -1;
     }
 
-    // Define Client
-    struct sockaddr_in client_address;
-    socklen_t client_address_len = sizeof(client_address);
-    char buffer[BUFFER_SIZE];
+    cout<<"Binded Successfully"<<endl;
+    struct sockaddr_un client_address; // Define the client_address struct
+    socklen_t client_address_len = sizeof(client_address); // Define the client_address_len - size of type sockaddr_un
+    char buffer[BUFFER_SIZE]; // Define the buffer to store the message from the client
+    cout<<"Server is waiting for connections..."<<endl;
 
-    cout<<"Ready to receive.."<<endl;
-    cout<<"Enter ok"<<endl;
-
-        ssize_t bytesReceived = recvfrom(serverSocket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_address, &client_address_len);
-        if (bytesReceived < 0) {
-            perror("Failed to receive");
-            close(serverSocket);
-            return -1;   
-        }
+    //Receive a message from the client
+    ssize_t bytesReceived = recvfrom(serverSocket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_address, &client_address_len);
     
-    cout<<"Connected to client"<<endl;
+    if(bytesReceived < 0)
+    {
+        perror("Failed to receive");
+        close(serverSocket);
+        return -1;
+    }
+
+    freeaddrinfo(resolvedAddress);  // free the linked list
 
     return serverSocket;
 }

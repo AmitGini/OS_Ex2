@@ -60,6 +60,7 @@ int startUDSClientDatagram(const string &socketPath)
     socket_addr.sun_family = AF_UNIX; // Set the server_addr struct values 
     strncpy(socket_addr.sun_path, socket_path, sizeof(socket_addr.sun_path) - 1); // Copy the socket path to the server_addr struct
     
+    
     if(connect(recvfromSocket, (const struct sockaddr *) &socket_addr, sizeof(socket_addr)) == -1)
     {
         perror("Failed to connect");
