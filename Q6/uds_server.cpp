@@ -68,9 +68,9 @@ int startUDSServerStream(const string &socketPath)
 
 int startUDSServerDatagram(const std::string &socketPath)
 {
-    int recvfrom_socket = socket(AF_UNIX, SOCK_DGRAM, 0); // Create the server socket stream 
+    int serverSocket = socket(AF_UNIX, SOCK_DGRAM, 0); // Create the server socket stream 
 
-    if(recvfrom_socket < 0) // check if the socket was created successfully
+    if(serverSocket < 0) // check if the socket was created successfully
     {
         perror("socket");
         return -1;
@@ -83,10 +83,10 @@ int startUDSServerDatagram(const std::string &socketPath)
     strncpy(server_addr.sun_path, socketPath.c_str(), sizeof(server_addr.sun_path) - 1); // Copy the socket path to the server_addr struct
    
     // Bind the server socket to the server_addr struct
-    if(bind(recvfrom_socket, (const struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
+    if(bind(serverSocket, (const struct sockaddr *) &server_addr, sizeof(server_addr)) < 0)
     {
         perror("Failed to bind");
-        close(recvfrom_socket);
+        close(serverSocket);
         return -1;
     } 
     else cout<<"Bind Successfully "<<endl;
@@ -96,17 +96,16 @@ int startUDSServerDatagram(const std::string &socketPath)
     char buffer[BUFFER_SIZE]; // Define the buffer to store the message from the client
     cout<<"Server is waiting for connections..."<<endl;
 
-    // Receive a message from the client
-     cout<<"Enter ok"<<endl;
-    ssize_t bytesReceived = recvfrom(recvfrom_socket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_address, &client_address_len);
+    //Receive a message from the client
+    ssize_t bytesReceived = recvfrom(serverSocket, buffer, sizeof(buffer), 0, (struct sockaddr *)&client_address, &client_address_len);
     
     if(bytesReceived < 0)
     {
         perror("Failed to receive");
-        close(recvfrom_socket);
+        close(serverSocket);
         return -1;
     }else cout<<"Data Received Successfully - Num of Bytes: "<< bytesReceived <<endl;
 
-    return recvfrom_socket;
+    return serverSocket;
     }
 
