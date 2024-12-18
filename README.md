@@ -1,12 +1,8 @@
 # Operation System - Assignment 2
-
-## Overview
+## Overview:
 This repository contains several exercises related to operating systems, implemented in C++. The exercises include creating a tic-tac-toe game and a custom version of the netcat utility. Each exercise is contained in its own folder with a Makefile for building and running the code.
 
 ---
-
-## Assignments
-
 ### Assignment 1: Tic-Tac-Toe (ttt)
 The goal is to create the worst AI for a tic-tac-toe game that follows a predefined strategy.
 
