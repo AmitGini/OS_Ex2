@@ -1,8 +1,4 @@
-I couldn't retrieve the necessary files from the repository. However, I can still provide a template for the README file based on the assignment instructions you provided.
-
----
-
-# OS_Ex2
+# Operation System - Assignment 2
 
 ## Overview
 This repository contains several exercises related to operating systems, implemented in C++. The exercises include creating a tic-tac-toe game and a custom version of the netcat utility. Each exercise is contained in its own folder with a Makefile for building and running the code.
